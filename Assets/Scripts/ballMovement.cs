@@ -13,6 +13,8 @@ public class ballMovement : MonoBehaviour
     public float xBound = 9.35f;
 
     public AudioClip hitSound;
+    public AudioClip paddleHitSound;
+    public AudioClip scoreSound;
 
     private void Awake()
     {
@@ -40,13 +42,15 @@ public class ballMovement : MonoBehaviour
             if (Mathf.Abs(rb2D.position.x) >= xBound)
             {
                 Death();
+                GameManager.Instance.playSound(scoreSound, 0.5f);
             }
         }
     }
 
-    private void ResetPos()
+    public void ResetPos()
     {
-        GameManager.Instance.State = "serve";
+        if (GameManager.Instance.State == "play")
+            GameManager.Instance.State = "serve";
         GameManager.Instance.messagesGUI.text = "Enter To Start";
         GameManager.Instance.messagesGUI.enabled = true;
         transform.position = new Vector3(0, 0, 0);
@@ -55,7 +59,6 @@ public class ballMovement : MonoBehaviour
             GameManager.Instance.initBallSpeed * (Random.Range(0.0f, 1.0f)>0.5f ? 1f : -1f),
             GameManager.Instance.initBallSpeed * (Random.Range(0.0f, 1.0f) >0.5f ? 1f : -1f)
         );
-        GameManager.Instance.State = "serve";
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -64,6 +67,7 @@ public class ballMovement : MonoBehaviour
         {
             velocity.x *= -1;
             velocity.x = IncrementSpeed(velocity.x);
+            GameManager.Instance.playSound(paddleHitSound, 0.5f);
         }
     }
 

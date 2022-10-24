@@ -30,8 +30,13 @@ public class GameManager : MonoBehaviour
     public KeyCode startKey;
 
     public TextMeshProUGUI messagesGUI;
+    public TextMeshProUGUI titleGUI;
 
     private AudioSource m_audioSource;
+
+    public AudioClip gameoverSound;
+    public AudioClip startSound;
+    public AudioClip serveSound;
 
     public void Awake()
     {
@@ -47,15 +52,32 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        State = "gameover";
+        State = "home";
+        titleGUI.enabled = true;
     }
 
     private void Update()
     {
-        if ((State == "gameover"||State == "serve")&& Input.GetKeyDown(startKey))
+        if (Input.GetKeyDown(startKey))
         {
-            State = "play";
-            messagesGUI.enabled = false;
+            if (State == "home")
+            {
+                State = "play";
+                playSound(startSound, 0.5f);
+                messagesGUI.enabled = false;
+                titleGUI.enabled = false;
+            }
+            else if(State == "serve")
+            {
+                State = "play";
+                playSound(serveSound, 0.5f);
+            }
+            else if (State == "gameover")
+            {
+                State = "home";
+                titleGUI.text = "PONG";
+                resetScore();
+            }
         }
         else if (Input.GetKeyDown(pauseKey))
             State = State == "play" ? "pause" : "play";
@@ -68,7 +90,10 @@ public class GameManager : MonoBehaviour
         {
             if (p.Score >= pointToVictory)
             {
-                resetScore();
+                State = "gameover";
+                playSound(gameoverSound, 0.5f);
+                titleGUI.text = "Player " + player + " wins!";
+                titleGUI.enabled = true;
                 break;
             }
         }
